@@ -1,17 +1,17 @@
 // Smart Ambulance Traffic Clearance System
-// Stage 2 - Non-Blocking Distance Based Traffic Logic
+// Stage 2 - Dynamic Distance Input with Non-Blocking Logic
 
 const int RED_LED = 8;
 const int YELLOW_LED = 9;
 const int GREEN_LED = 10;
 const int BUZZER = 11;
 
-float ambulanceDistance = 600;
+float ambulanceDistance = 0;
 
 unsigned long previousMillis = 0;
 const unsigned long interval = 5000;
 
-int testStage = 0;
+String inputBuffer = "";
 
 void setup() {
 
@@ -19,6 +19,8 @@ void setup() {
   pinMode(YELLOW_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(BUZZER, OUTPUT);
+
+  Serial.begin(9600);
 
   normalState();
 }
@@ -66,7 +68,46 @@ void updateTrafficState() {
   }
 }
 
+void readAmbulanceDistance() {
+
+  while (Serial.available() > 0) {
+
+    char c = Serial.read();
+
+    if (c == '\n' || c == '\r') {
+
+      if (inputBuffer.length() > 0) {
+
+        float value = inputBuffer.toFloat();
+
+        if (value >= 0) {
+
+          ambulanceDistance = value;
+
+          updateTrafficState();
+
+          Serial.print("Ambulance Distance: ");
+          Serial.print(ambulanceDistance);
+          Serial.println(" m");
+
+        }
+
+        inputBuffer = "";
+
+      }
+
+    }
+    else if ((c >= '0' && c <= '9') || c == '.') {
+
+      inputBuffer += c;
+
+    }
+  }
+}
+
 void loop() {
+
+  readAmbulanceDistance();
 
   unsigned long currentMillis = millis();
 
@@ -74,25 +115,7 @@ void loop() {
 
     previousMillis = currentMillis;
 
-    testStage++;
-
-    if (testStage == 1) {
-
-      ambulanceDistance = 300;
-
-    }
-    else if (testStage == 2) {
-
-      ambulanceDistance = 100;
-
-    }
-    else {
-
-      testStage = 0;
-      ambulanceDistance = 600;
-
-    }
-
     updateTrafficState();
+
   }
 }
