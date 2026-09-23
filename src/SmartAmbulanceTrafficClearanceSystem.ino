@@ -69,7 +69,24 @@ if (ambulanceDistance > NORMAL_DISTANCE_THRESHOLD) {
   }
 }
 
-void readAmbulanceDistance() {
+
+
+void loop() {
+
+  receiveAmbulanceDistance();
+
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis >= interval) {
+
+    previousMillis = currentMillis;
+
+    updateTrafficState();
+
+  }
+}
+
+void receiveAmbulanceDistance() {
 
   while (Serial.available() > 0) {
 
@@ -79,15 +96,15 @@ void readAmbulanceDistance() {
 
       if (inputBuffer.length() > 0) {
 
-        float value = inputBuffer.toFloat();
+        float receivedDistance = inputBuffer.toFloat();
 
-        if (value >= 0) {
+        if (receivedDistance >= 0) {
 
-          ambulanceDistance = value;
+          ambulanceDistance = receivedDistance;
 
           updateTrafficState();
 
-          Serial.print("Ambulance Distance: ");
+          Serial.print("Received Ambulance Distance: ");
           Serial.print(ambulanceDistance);
           Serial.println(" m");
 
@@ -105,18 +122,4 @@ void readAmbulanceDistance() {
     }
   }
 }
-
-void loop() {
-
-  readAmbulanceDistance();
-
-  unsigned long currentMillis = millis();
-
-  if (currentMillis - previousMillis >= interval) {
-
-    previousMillis = currentMillis;
-
-    updateTrafficState();
-
-  }
 }
