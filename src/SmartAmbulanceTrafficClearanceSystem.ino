@@ -5,7 +5,8 @@ const int RED_LED = 8;
 const int YELLOW_LED = 9;
 const int GREEN_LED = 10;
 const int BUZZER = 11;
-
+const float NORMAL_DISTANCE_THRESHOLD = 500.0;
+const float EMERGENCY_DISTANCE_THRESHOLD = 200.0;
 float ambulanceDistance = 0;
 
 unsigned long previousMillis = 0;
@@ -51,12 +52,12 @@ void emergencyState() {
 
 void updateTrafficState() {
 
-  if (ambulanceDistance > 500) {
+if (ambulanceDistance > NORMAL_DISTANCE_THRESHOLD) {
 
     normalState();
 
   }
-  else if (ambulanceDistance > 200) {
+  else if (ambulanceDistance > EMERGENCY_DISTANCE_THRESHOLD) {
 
     approachingState();
 
